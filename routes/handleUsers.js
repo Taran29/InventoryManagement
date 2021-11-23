@@ -12,8 +12,8 @@ router.post('/', authAdmin, async (req, res) => {
     return res.status(400).send(error.details[0].message)
   }
 
-  const salt = bcrypt.genSalt(10)
-  const hashed = bcrypt.hash(req.body.password, salt)
+  const salt = await bcrypt.genSalt(10)
+  const hashed = await bcrypt.hash(req.body.password, salt)
 
   const user = new User({
     name: req.body.name,
@@ -22,11 +22,10 @@ router.post('/', authAdmin, async (req, res) => {
     role: req.body.role
   })
 
-  const token = user.generateAuthToken()
-  const result = user.save()
+  const result = await user.save()
 
   const response = _.pick(result, ['_id', 'name', 'email', 'role'])
-  res.status(200).header('x-auth-token', token).send(response)
+  res.status(200).send(response)
 })
 
 module.exports = router
