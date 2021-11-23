@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  roles: {
+  role: {
     type: String,
     enum: ['Admin', 'Employee'],
     default: 'Employee'
@@ -24,7 +24,10 @@ const userSchema = new mongoose.Schema({
 })
 
 userSchema.methods.generateAuthToken = function () {
-  const token = jwt.sign( { _id: this._id }, process.env.jwtPrivateKey)
+  const token = jwt.sign( { 
+    _id: this._id,
+    role: this.role  
+  }, process.env.JWT_PRIVATE_KEY)
   return token
 }
 
@@ -35,7 +38,7 @@ const validateUser = (user) => {
     name: Joi.string().required().trim().max(50),
     email: Joi.string().email().required().trim().max(255),
     password: Joi.string().min(8).max(24).required(),
-    roles: Joi.string().valid('Admin', 'Employee').default('Employee')
+    role: Joi.string().valid('Admin', 'Employee').default('Employee')
   })
 
   return schema.validate(user)
