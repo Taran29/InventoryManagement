@@ -3,8 +3,20 @@ const bcrypt = require('bcrypt')
 const _ = require('lodash')
 const { User, validateUser } = require('../models/user')
 const authAdmin = require('../middlewares/authAdmin')
+const auth = require('../middlewares/auth')
 
 const router = express.Router()
+
+router.get('/', auth, async (req, res) => {
+  try {
+    const users = await User.find()
+    res.status(200).send({
+      users: users
+    })
+  } catch (ex) {
+    res.status(404).send(ex)
+  }
+})
 
 router.post('/', authAdmin, async (req, res) => {
   const { error } = validateUser(req.body)
