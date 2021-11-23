@@ -1,7 +1,7 @@
 const express = require('express')
 const bcrypt = require('bcrypt')
 const _ = require('lodash')
-const { User } = require('../models/user')
+const { User } = require('../../models/user')
 
 const router = express.Router()
 

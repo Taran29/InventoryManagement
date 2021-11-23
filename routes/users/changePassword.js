@@ -1,8 +1,8 @@
 const express = require('express')
 const bcrypt = require('bcrypt')
 const Joi = require('joi')
-const { User } = require('../../To-do List App/models/user')
-const authAdmin = require('../middlewares/authAdmin')
+const { User } = require('../../models/user')
+const authAdmin = require('../../middlewares/authAdmin')
 
 const router = express.Router()
 

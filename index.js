@@ -2,9 +2,11 @@ const mongoose = require('mongoose')
 const express = require('express')
 const dotenv = require('dotenv')
 
-const handleUsers = require('./routes/handleUsers')
-const login = require('./routes/login')
-const changePassword = require('./routes/changePassword')
+const handleUsers = require('./routes/users/handleUsers')
+const login = require('./routes/users/login')
+const changePassword = require('./routes/users/changePassword')
+
+const items = require('./routes/items/items')
 
 dotenv.config()
 
@@ -13,6 +15,7 @@ app.use(express.json())
 app.use('/api/users', handleUsers)
 app.use('/api/login', login)
 app.use('/api/changePassword', changePassword)
+app.use('/api/items', items)
 
 mongoose.connect(process.env.DATABASE_URI)
   .then(() => {

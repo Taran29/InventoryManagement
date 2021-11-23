@@ -3,9 +3,9 @@ const bcrypt = require('bcrypt')
 const _ = require('lodash')
 const Joi = require('joi')
 
-const { User, validateUser } = require('../models/user')
-const authAdmin = require('../middlewares/authAdmin')
-const auth = require('../middlewares/auth')
+const { User, validateUser } = require('../../models/user')
+const authAdmin = require('../../middlewares/authAdmin')
+const auth = require('../../middlewares/auth')
 
 const router = express.Router()
 
