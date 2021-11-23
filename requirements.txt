@@ -1,0 +1,7 @@
+# authentication
+# logging sales
+# logging purchases
+# profit analytics
+# out of stock reports 
+# product categorisation
+# customer records
