@@ -8,7 +8,10 @@ const itemSchema = new mongoose.Schema({
     trim: true,
   },
   vehicles: {
-    type: [ String ],
+    _id: false,
+    type: [{
+      name: String
+    }],
     default: [],
   },
   any: {
@@ -28,7 +31,8 @@ const itemSchema = new mongoose.Schema({
     default: 0
   },
   supplier: {
-    type: String
+    type: String,
+    default: ""
   }
 })
 
@@ -41,7 +45,8 @@ const validateItem = (item) => {
     any: Joi.boolean().default(false),
     costPrice: Joi.number().required(),
     salePrice: Joi.number().required(),
-    supplier: Joi.string()
+    mrp: Joi.number(),
+    supplier: Joi.string().default("")
   })
 
   return schema.validate(item)
