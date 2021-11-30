@@ -10,7 +10,14 @@ const itemSchema = new mongoose.Schema({
   vehicles: {
     _id: false,
     type: [{
-      name: String
+      name: {
+        type: String,
+        required: true
+      },
+      model: {
+        type: String,
+        default: ''
+      }
     }],
     default: [],
   },
@@ -39,13 +46,18 @@ const itemSchema = new mongoose.Schema({
 const Item = mongoose.model('item', itemSchema)
 
 const validateItem = (item) => {
+  const vehicleSchema = new Joi.object({
+    name: Joi.string().trim().required(),
+    model: Joi.string().default('')
+  })
+
   const schema = new Joi.object({
     name: Joi.string().trim().required(),
-    vehicles: Joi.array().items(Joi.string()).default([]),
+    vehicles: Joi.array().items(vehicleSchema).default([]),
     any: Joi.boolean().default(false),
     costPrice: Joi.number().required(),
     salePrice: Joi.number().required(),
-    mrp: Joi.number(),
+    mrp: Joi.number().default(0),
     supplier: Joi.string().default("")
   })
 

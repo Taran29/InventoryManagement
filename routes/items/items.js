@@ -17,38 +17,46 @@ router.get('/item', async (req, res) => {
   const query = require('url').parse(req.url, true).query
   const name = query.name
   const vehicle = query.vehicle
+  const model = query.model
 
-  if (name) {
-    try {
-      const items = await Item
-                    .find({ name: { $regex: name, $options: 'i'}})
-                    .select()
-                    .sort()
-      if (items.length === 0) {
-        return res.status(400).send('No items found.')
-      }
-
-      return res.status(200).send(items)
-    } catch(ex) {
-      return res.status(404).send(ex)
-    }
+  const searchQuery = {
+    ...name != null && {name: { $regex: name, $options: 'i'}},
+    ...vehicle != null && {$text: { $search: vehicle}}
   }
 
-  if (vehicle) {
-    try {
-      const items = await Item.find({ $text: { $search: vehicle}})
+  let items = [], vehicleSearch = ''
+  if (!vehicle) vehicleSearch = 'vehicles'
 
-      if (items.length === 0) {
-        return res.status(400).send('No items found')
-      }
-
-      return res.status(200).send(items)
-    } catch (ex) {
-      return res.status(404).send(ex)
-    }
+  try {
+    items = await Item
+                .find(searchQuery)
+                .select({...vehicle != null && {vehicles: {$elemMatch: {name: { $regex: vehicle, $options: 'i'}}}}})
+                .select(vehicleSearch)
+                .select('name costPrice salePrice mrp supplier')
+                .sort()
+  } catch (ex) {
+    return res.status(404).send(ex)
   }
 
-  res.status(400).send('No items found.')
+  if (items.length === 0) return res.status(400).send('No items found.')
+
+  if (vehicle && model) {
+    let filteredItems = []
+
+    items.forEach((item) => {
+      if (item.vehicles[0].model.includes(model)) {
+        filteredItems.push(item)
+      }
+    })
+
+    if (filteredItems.length === 0) {
+      return res.status(400).send('No items found.')
+    }
+
+    return res.status(200).send(filteredItems)
+  }
+
+  res.status(200).send(items)
 })
 
 router.get('/:id', async (req, res) => {
@@ -70,20 +78,31 @@ router.post('/', async (req, res) => {
     return res.status(400).send(error.details[0].message)
   }
 
-  const vehicles = []
-  req.body.vehicles.forEach(vehicle => vehicles.push({ name: vehicle}))
-
   const item = new Item({
     name: req.body.name,
-    vehicles: vehicles,
+    vehicles: req.body.vehicles,
     any: req.body.any,
     costPrice: req.body.costPrice,
     salePrice: req.body.salePrice,
+    mrp: req.body.mrp,
     supplier: req.body.supplier
   })
 
   const result = await item.save()
   res.status(200).send(result)
+})
+
+router.delete('/:id', async (req, res) => {
+  try {
+    const result = await Item.findByIdAndDelete(req.params.id)
+    if (!result) {
+      return res.status(400).send('No item found.')
+    } 
+
+    return res.status(200).send(result)
+  } catch (ex) {
+    return res.status(404).send(ex)
+  }
 })
 
 module.exports = router
