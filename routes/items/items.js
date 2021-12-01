@@ -1,6 +1,6 @@
 const express = require('express')
 const auth = require('../../middlewares/auth')
-const { Item, validateItem } = require('../../models/item')
+const { Item, validateItem, validateVehicle } = require('../../models/item')
 
 const router = express.Router()
 
@@ -90,6 +90,69 @@ router.post('/', async (req, res) => {
 
   const result = await item.save()
   res.status(200).send(result)
+})
+
+router.put('/:id', async (req, res) => {
+  try {
+    let item = await Item.findById(req.params.id)
+
+    if (req.body.vehicles) {
+      req.body.vehicles.forEach((vehicle) => {
+        if (!item.vehicles.includes(vehicle)) {
+          item.vehicles.push(vehicle)
+        }
+      })
+    }
+
+    const newItem = {
+      name: req.body.name || item.name,
+      vehicles: item.vehicles,
+      any: req.body.any || item.any,
+      costPrice: req.body.costPrice || item.costPrice,
+      salePrice: req.body.salePrice || item.salePrice,
+      mrp: req.body.mrp || item.mrp,
+      supplier: req.body.supplier || item.supplier
+    }
+
+    item.overwrite(newItem)
+    const result = await item.save()
+    res.status(200).send(result)
+  } catch (ex) {
+    res.status(404).send(ex)
+  }
+})
+
+router.put('/vehicles/:itemId/:vehicleId', async (req, res) => {
+  const { error } = validateVehicle(req.body)
+  if (error) {
+    return res.status(400).send(error.details[0].message)
+  }
+
+  try {
+    let item = await Item.findById(req.params.itemId)
+    let vehicles = item.vehicles.id(req.params.vehicleId)
+
+    vehicles.set(req.body)
+    const result = await item.save()
+
+    res.status(200).send(result.vehicles)
+  } catch (ex) {
+    console.log(ex)
+    res.status(400).send(ex)
+  }
+})
+
+router.delete('/vehicles/:itemId/:vehicleId', async (req, res) => {
+  try {
+    let item = await Item.findById(req.params.itemId)
+    let vehicle = item.vehicles.id(req.params.vehicleId)
+    vehicle.remove()
+
+    const result = await item.save()
+    res.status(200).send(result)
+  } catch (ex) {
+    res.status(400).send(ex)
+  }
 })
 
 router.delete('/:id', async (req, res) => {
