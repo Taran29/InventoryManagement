@@ -8,6 +8,8 @@ const changePassword = require('./routes/users/changePassword')
 
 const items = require('./routes/items/items')
 
+const inventory = require('./routes/inventory/inventory')
+
 dotenv.config()
 
 const app = express()
@@ -16,6 +18,7 @@ app.use('/api/users', handleUsers)
 app.use('/api/login', login)
 app.use('/api/changePassword', changePassword)
 app.use('/api/items', items)
+app.use('/api/inventory', inventory)
 
 mongoose.connect(process.env.DATABASE_URI)
   .then(() => {
