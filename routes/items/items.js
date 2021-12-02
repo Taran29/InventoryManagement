@@ -1,17 +1,9 @@
 const express = require('express')
 const auth = require('../../middlewares/auth')
 const { Item, validateItem, validateVehicle } = require('../../models/item')
+const { Inventory } = require('../../models/inventory')
 
 const router = express.Router()
-
-router.get('/', async (req, res) => {
-  try {
-    const items = await Item.find().sort('name 1')
-    res.status(200).send({ items: items })
-  } catch (ex) {
-    res.status(404).send(ex)
-  }
-})
 
 router.get('/item', async (req, res) => {
   const query = require('url').parse(req.url, true).query
@@ -162,6 +154,7 @@ router.delete('/:id', async (req, res) => {
       return res.status(400).send('No item found.')
     } 
 
+    const stock = await Inventory.findOneAndDelete({ itemId: req.params.id})
     return res.status(200).send(result)
   } catch (ex) {
     return res.status(404).send(ex)
